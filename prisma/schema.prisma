@@ -185,9 +185,9 @@ model BrandProfile {
   language          String
   products          String
   uvp               String
-  primaryColor      String?
-  secondaryColor    String?
-  accentColor       String?
+  primaryColor      String?  @default("#4F46E5")
+  secondaryColor    String?  @default("#FFFFFF")
+  accentColor       String?  @default("#111827")
   fontFamily        String?
   fontStyle         String?
   logoUrl           String?
