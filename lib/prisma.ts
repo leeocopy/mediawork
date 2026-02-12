@@ -14,8 +14,14 @@ const prismaClientSingleton = () => {
         neonConfig.webSocketConstructor = ws;
     }
 
-    // Use a fallback dummy connection string if DATABASE_URL is missing (e.g., during build)
-    const connectionString = process.env.DATABASE_URL || "postgresql://dummy:dummy@localhost:5432/dummy";
+    const connectionString = process.env.DATABASE_URL;
+
+    // Minimal runtime log to confirm loading
+    console.log("[PRISMA] DATABASE_URL present:", !!connectionString, "length:", connectionString?.length);
+
+    if (!connectionString) {
+        throw new Error("DATABASE_URL missing at runtime");
+    }
 
     const pool = new Pool({ connectionString });
 
