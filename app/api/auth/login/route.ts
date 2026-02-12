@@ -68,12 +68,21 @@ export async function POST(request: NextRequest) {
                 },
             },
         });
-    } catch (error) {
-        console.error('Login error:', error);
+    } catch (error: any) {
+        console.error('[AUTH_LOGIN_ERROR] Full details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+            cause: error.cause,
+            dbUrlExists: !!process.env.DATABASE_URL,
+            dbUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0
+        });
+
         return NextResponse.json(
             {
                 success: false,
                 error: 'Internal server error',
+                debug: process.env.NODE_ENV === 'development' ? error.message : undefined
             },
             { status: 500 }
         );
