@@ -1,0 +1,54 @@
+﻿
+> social-media-mvp@0.1.0 lint
+> next lint
+
+node.exe : 
+Au caractère Ligne:1 : 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+./app/app/page.tsx
+59:8  Warning: React Hook useEffect has a missing dependency: 'initializePage'. Either 
+include it or remove the dependency array.  react-hooks/exhaustive-deps
+66:8  Warning: React Hook useEffect has missing dependencies: 'fetchApprovedPosts' and 
+'fetchPosts'. Either include them or remove the dependency array.  
+react-hooks/exhaustive-deps
+873:12  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider 
+using `<Image />` from `next/image` to automatically optimize images. This may incur 
+additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+901:8  Warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include 
+it or remove the dependency array.  react-hooks/exhaustive-deps
+1443:73  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider 
+using `<Image />` from `next/image` to automatically optimize images. This may incur 
+additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+1472:125  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  
+react/no-unescaped-entities
+1472:148  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  
+react/no-unescaped-entities
+1482:133  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  
+react/no-unescaped-entities
+1482:153  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  
+react/no-unescaped-entities
+
+./app/app/settings/page.tsx
+70:8  Warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include 
+it or remove the dependency array.  react-hooks/exhaustive-deps
+288:49  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider 
+using `<Image />` from `next/image` to automatically optimize images. This may incur 
+additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/companies/page.tsx
+29:8  Warning: React Hook useEffect has a missing dependency: 'fetchCompanies'. Either 
+include it or remove the dependency array.  react-hooks/exhaustive-deps
+285:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider 
+using `<Image />` from `next/image` to automatically optimize images. This may incur 
+additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: 
+https://nextjs.org/docs/basic-features/eslint#disabling-rules

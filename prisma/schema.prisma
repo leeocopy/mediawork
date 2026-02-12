@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      String   @default("MARKETER") // MARKETER, DESIGNER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  companyMemberships CompanyMember[]
+  createdPosts       Post[]          @relation("PostCreator")
+  reviews            PostReview[]
+  sentInvitations    Invitation[]    @relation("Inviter")
+
+  @@map("users")
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logoUrl     String?
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members      CompanyMember[]
+  posts        Post[]
+  brandProfile BrandProfile?
+  invitations  Invitation[]
+
+  @@map("companies")
+}
+
+model CompanyMember {
+  id        String   @id @default(cuid())
+  userId    String
+  companyId String
+  role      String   // 'ADMIN', 'EDITOR', 'VIEWER'
+  joinedAt  DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@index([userId])
+  @@index([companyId])
+  @@map("company_members")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  companyId   String
+  date        String   // YYYY-MM-DD format
+  platform    String   // Instagram, Facebook, LinkedIn
+  postType    String   // Promo, Educational, Announcement, Testimonial
+  title       String
+  notes       String?
+  status      String   // DRAFT, PLANNED, APPROVED, SCHEDULED, PUBLISHED
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  publishedUrl String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  company    Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  creator    User           @relation("PostCreator", fields: [createdBy], references: [id])
+  aiOutput   PostAIOutput?
+  assets     PostAsset[]
+  reviews    PostReview[]
+  activities PostActivity[]
+  history    PostStatusHistory[]
+
+  @@index([companyId, date])
+  @@index([companyId])
+  @@index([date])
+  @@map("posts")
+}
+
+model PostActivity {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  action    String   // CREATED, UPDATED, SCHEDULED, PUBLISHED, EXPORTED
+  details   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("post_activities")
+}
+
+model PostReview {
+  id         String   @id @default(cuid())
+  postId     String
+  status     String   // APPROVED, CHANGES_REQUESTED, REJECTED
+  reviewerId String
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  post     Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reviewer User @relation(fields: [reviewerId], references: [id])
+
+  @@index([postId])
+  @@map("post_reviews")
+}
+
+model PostStatusHistory {
+  id        String   @id @default(cuid())
+  postId    String
+  oldStatus String
+  newStatus String
+  byUserId  String
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("post_status_history")
+}
+
+model PostAIOutput {
+  id             String   @id @default(cuid())
+  postId         String   @unique
+  internalBrief  String   // JSON string
+  primaryCaption String?
+  hashtags       String?  // JSON string
+  altText        String?
+  imageIdeas     String?  // JSON string (renamed from visualPlans)
+  visualSystem   String?  // JSON string
+  version        Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_ai_outputs")
+}
+
+model PostAsset {
+  id         String   @id @default(cuid())
+  postId     String
+  fileName   String
+  fileUrl    String
+  fileType   String
+  version    Int      @default(1)
+  uploadedAt DateTime @default(now())
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("post_assets")
+}
+
+model BrandProfile {
+  id                String   @id @default(cuid())
+  companyId         String   @unique
+  industry          String
+  targetAudience    String
+  tone              String
+  language          String
+  products          String
+  uvp               String
+  primaryColor      String
+  secondaryColor    String?
+  accentColor       String?
+  fontFamily        String?
+  fontStyle         String?
+  logoUrl           String?
+  companyDescription String?
+  tagline           String?
+  websiteUrl        String?
+  instagramHandle   String?
+  doUseWords        String?
+  dontUseWords      String?
+  emojiUsage        String?  @default("light") // none, light, heavy
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  company    Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  guidelines BrandGuideline[]
+
+  @@map("brand_profiles")
+}
+
+model BrandGuideline {
+  id             String       @id @default(cuid())
+  brandProfileId String?
+  companyId      String
+  fileName       String
+  fileUrl        String
+  uploadedAt     DateTime     @default(now())
+
+  // Relations
+  brandProfile BrandProfile? @relation(fields: [brandProfileId], references: [id])
+
+  @@index([companyId])
+  @@map("brand_guidelines")
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String
+  companyId String
+  role      String   @default("VIEWER")
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  invitedBy String
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  inviter User    @relation("Inviter", fields: [invitedBy], references: [id])
+
+  @@unique([email, companyId])
+  @@index([token])
+  @@map("invitations")
+}
