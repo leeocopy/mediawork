@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    env: {
-        PRISMA_CLIENT_ENGINE_TYPE: 'library',
-    },
     images: {
         remotePatterns: [
             {
