@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model User {
@@ -185,7 +185,7 @@ model BrandProfile {
   language          String
   products          String
   uvp               String
-  primaryColor      String
+  primaryColor      String?
   secondaryColor    String?
   accentColor       String?
   fontFamily        String?
