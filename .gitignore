@@ -38,6 +38,7 @@ next-env.d.ts
 # uploads
 /public/uploads
 /uploads
+/public/generated
 
 # prisma
 /prisma/dev.db
