@@ -47,10 +47,13 @@ export async function POST(request: NextRequest) {
                 companyId,
                 industry: '',
                 targetAudience: '',
-                tone: 'Professional',
+                tone: 'English (EN)',
                 language: 'EN',
                 products: '',
                 uvp: '',
+                primaryColor: '#4F46E5',
+                secondaryColor: '#111827',
+                accentColor: '#22C55E',
                 logoUrl: url
             }
         });

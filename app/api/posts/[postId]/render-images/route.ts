@@ -36,26 +36,27 @@ export async function POST(
         }
 
         const aiOutput = await getAIOutput(postId);
-        if (!aiOutput || !aiOutput.visualPlans) {
+        if (!aiOutput || !aiOutput.image_ideas) {
             return NextResponse.json({ success: false, error: 'AI Plan not found' }, { status: 400 });
         }
 
         const brandInitial = brandProfile.company?.name?.charAt(0).toUpperCase() || "B";
 
         // Render all plans
-        const updatedPlans = [...aiOutput.visualPlans];
+        const updatedPlans = [...aiOutput.image_ideas];
         for (let i = 0; i < updatedPlans.length; i++) {
             const plan = updatedPlans[i];
 
             plan.finalUrl = await renderFinalVisual({
                 postId,
-                ideaId: plan.ideaNumber.toString(),
-                templateId: plan.templateId,
+                ideaId: plan.id,
+                format: plan.format,
+                style: plan.style,
                 backgroundUrl: plan.backgroundUrl,
                 logoUrl: brandProfile.logoUrl || undefined,
-                overlayText: plan.overlayText,
-                subtitleText: plan.subtitleText,
-                ctaText: plan.ctaText,
+                overlayText: plan.text_overlay.headline,
+                subtitleText: plan.text_overlay.sub,
+                ctaText: plan.text_overlay.cta,
                 brandColors: {
                     primary: brandProfile.primaryColor || "#4F46E5",
                     secondary: brandProfile.secondaryColor || "#111827",
@@ -68,7 +69,7 @@ export async function POST(
             plan.status = 'RENDERED';
         }
 
-        aiOutput.visualPlans = updatedPlans;
+        aiOutput.image_ideas = updatedPlans;
         await saveAIOutput(postId, aiOutput);
 
         return NextResponse.json({ success: true, data: aiOutput });
