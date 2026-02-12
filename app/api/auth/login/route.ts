@@ -1,4 +1,6 @@
+export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { loginSchema, formatZodErrors } from '@/lib/validation';
 import { findUserByEmail } from '@/lib/db';
 import { comparePassword, generateToken } from '@/lib/auth';

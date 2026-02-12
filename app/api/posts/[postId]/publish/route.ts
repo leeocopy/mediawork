@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { isUserMemberOfCompany } from '@/lib/db';
@@ -37,7 +39,7 @@ export async function PUT(
         }
 
         // 4. Update
-        const updatedPost = await prisma.$transaction(async (tx) => {
+        const updatedPost = await prisma.$transaction(async (tx: any) => {
             const up = await (tx as any).post.update({
                 where: { id: params.postId },
                 data: {

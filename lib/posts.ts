@@ -147,7 +147,7 @@ export const addPostReview = async (reviewData: {
     comment?: string;
 }) => {
     // Start a transaction to update the review and the post status
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
         const review = await (tx as any).postReview.create({
             data: reviewData,
         });

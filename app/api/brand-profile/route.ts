@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -127,3 +129,4 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ success: false, error: error.message || 'Internal server error' }, { status: 500 });
     }
 }
+

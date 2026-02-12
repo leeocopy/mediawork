@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { getUserCompanies } from '@/lib/db';
@@ -122,3 +124,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+

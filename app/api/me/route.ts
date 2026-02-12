@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { findUserById, getUserCompanies } from '@/lib/db';
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
         const companies = await getUserCompanies(payload.userId);
 
         // Format memberships for debugging
-        const memberships = companies.map(c => ({
+        const memberships = companies.map((c: any) => ({
             companyId: c.id,
             companyName: c.name,
             role: c.userRole,
@@ -76,3 +78,4 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+

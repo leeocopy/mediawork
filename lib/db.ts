@@ -47,7 +47,7 @@ export const getUserCompanies = async (userId: string) => {
     // For now, lets just map the basic details. 
 
     // To get member counts for each company efficiently:
-    const companyIds = memberships.map(m => m.companyId);
+    const companyIds = memberships.map((m: any) => m.companyId);
 
     const memberCounts = await prisma.companyMember.groupBy({
         by: ['companyId'],
@@ -59,9 +59,9 @@ export const getUserCompanies = async (userId: string) => {
         }
     });
 
-    const countsMap = new Map(memberCounts.map(c => [c.companyId, c._count.userId]));
+    const countsMap = new Map(memberCounts.map((c: any) => [c.companyId, c._count.userId]));
 
-    return memberships.map(m => ({
+    return memberships.map((m: any) => ({
         id: m.company.id,
         name: m.company.name,
         description: m.company.description,
@@ -122,7 +122,7 @@ export const addUserToCompany = async (userId: string, companyId: string, role: 
             companyId,
             role,
         },
-    }).catch(e => {
+    }).catch((e: any) => {
         // If unique constraint violation (already member), just return existing
         if (e.code === 'P2002') {
             return prisma.companyMember.findUniqueOrThrow({
