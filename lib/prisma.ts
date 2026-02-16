@@ -45,11 +45,11 @@ const prismaClientSingleton = () => {
     try {
         console.log("LOG: Constructing PrismaClient with PrismaNeon (WebSocket) adapter...");
 
+        const url = process.env.DATABASE_URL;
+        if (!url) throw new Error("DATABASE_URL is missing in environment");
+
         // Prisma 7 Neon Driver Adapter setup (WebSocket version)
-        // Note: PrismaNeon acts as a factory/config holder in recent versions
-        const adapter = new PrismaNeon({
-            connectionString: process.env.DATABASE_URL
-        });
+        const adapter = new PrismaNeon({ connectionString: url });
 
         const client = new PrismaClient({
             adapter: adapter as any,
