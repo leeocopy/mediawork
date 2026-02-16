@@ -1,5 +1,10 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+
+if (typeof window === 'undefined') {
+    dotenv.config();
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production-min-256-bits';
 

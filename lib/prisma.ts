@@ -1,6 +1,18 @@
 import { PrismaClient } from '@prisma/client'
-import { neon } from '@neondatabase/serverless'
-import { PrismaNeonHttp } from '@prisma/adapter-neon'
+import { Pool, neonConfig } from '@neondatabase/serverless'
+import { PrismaNeon } from '@prisma/adapter-neon'
+import ws from 'ws'
+import dotenv from 'dotenv'
+
+// Load environment variables for local development and non-Next.js scripts
+if (typeof window === 'undefined') {
+    dotenv.config()
+}
+
+// CRITICAL: Configure Neon to use the 'ws' package for WebSockets
+if (typeof window === 'undefined') {
+    neonConfig.webSocketConstructor = ws
+}
 
 /**
  * Standard Prisma Client initialization for Prisma 7 with Neon HTTP Adapter.
@@ -29,10 +41,13 @@ const prismaClientSingleton = () => {
     }
 
     try {
-        console.log("LOG: Constructing PrismaClient with adapter...");
-        // Prisma 7 Neon HTTP Driver Adapter setup
-        // Note: PrismaNeonHttp takes the URL directly
-        const adapter = new PrismaNeonHttp(process.env.DATABASE_URL, {} as any);
+        console.log("LOG: Constructing PrismaClient with PrismaNeon (WebSocket) adapter...");
+
+        // Prisma 7 Neon Driver Adapter setup (WebSocket version)
+        // Note: PrismaNeon acts as a factory/config holder in recent versions
+        const adapter = new PrismaNeon({
+            connectionString: process.env.DATABASE_URL
+        });
 
         const client = new PrismaClient({
             adapter: adapter as any,
