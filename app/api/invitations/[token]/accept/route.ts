@@ -50,26 +50,24 @@ export async function POST(
             }, { status: 403 });
         }
 
-        // Add to company (transaction to ensure invite deletion)
-        await prisma.$transaction(async (tx: any) => {
-            // Check if already member (double check)
-            const member = await tx.companyMember.findUnique({
-                where: { userId_companyId: { userId: user.id, companyId: invitation.companyId } }
-            });
-
-            if (!member) {
-                await tx.companyMember.create({
-                    data: {
-                        userId: user.id,
-                        companyId: invitation.companyId,
-                        role: invitation.role
-                    }
-                });
-            }
-
-            // Delete invitation
-            await tx.invitation.delete({ where: { id: invitation.id } });
+        // Add to company (removed transaction for HTTP adapter compatibility)
+        // Check if already member (double check)
+        const member = await prisma.companyMember.findUnique({
+            where: { userId_companyId: { userId: user.id, companyId: invitation.companyId } }
         });
+
+        if (!member) {
+            await prisma.companyMember.create({
+                data: {
+                    userId: user.id,
+                    companyId: invitation.companyId,
+                    role: invitation.role
+                }
+            });
+        }
+
+        // Delete invitation
+        await prisma.invitation.delete({ where: { id: invitation.id } });
 
         return NextResponse.json({
             success: true,

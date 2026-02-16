@@ -80,37 +80,35 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Create company, membership, and initial brand profile in transaction
-        const result = await prisma.$transaction(async (tx: any) => {
-            const company = await tx.company.create({
-                data: {
-                    name: name.trim(),
-                },
-            });
-
-            await tx.companyMember.create({
-                data: {
-                    companyId: company.id,
-                    userId: payload.userId,
-                    role: 'ADMIN',
-                },
-            });
-
-            // Create initial brand profile
-            await tx.brandProfile.create({
-                data: {
-                    companyId: company.id,
-                    industry: industry || '',
-                    targetAudience: '',
-                    tone: 'Professional',
-                    language: 'EN',
-                    products: '',
-                    uvp: '',
-                }
-            });
-
-            return company;
+        // Create company, membership, and initial brand profile (removed transaction for HTTP adapter compatibility)
+        const company = await prisma.company.create({
+            data: {
+                name: name.trim(),
+            },
         });
+
+        await prisma.companyMember.create({
+            data: {
+                companyId: company.id,
+                userId: payload.userId,
+                role: 'ADMIN',
+            },
+        });
+
+        // Create initial brand profile
+        await prisma.brandProfile.create({
+            data: {
+                companyId: company.id,
+                industry: industry || '',
+                targetAudience: '',
+                tone: 'Professional',
+                language: 'EN',
+                products: '',
+                uvp: '',
+            }
+        });
+
+        const result = company;
 
         return NextResponse.json({
             success: true,

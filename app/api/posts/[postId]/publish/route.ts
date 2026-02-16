@@ -39,26 +39,23 @@ export async function PUT(
         }
 
         // 4. Update
-        const updatedPost = await prisma.$transaction(async (tx: any) => {
-            const up = await (tx as any).post.update({
-                where: { id: params.postId },
-                data: {
-                    status: 'PUBLISHED',
-                    publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
-                    publishedUrl: publishedUrl || null,
-                }
-            });
+        // Note: Removed transaction for HTTP adapter compatibility on Vercel
+        const updatedPost = await prisma.post.update({
+            where: { id: params.postId },
+            data: {
+                status: 'PUBLISHED',
+                publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
+                publishedUrl: publishedUrl || null,
+            }
+        });
 
-            await (tx as any).postActivity.create({
-                data: {
-                    postId: params.postId,
-                    userId: payload.userId,
-                    action: 'PUBLISHED',
-                    details: publishedUrl ? `Published to ${publishedUrl}` : 'Marked as published',
-                }
-            });
-
-            return up;
+        await prisma.postActivity.create({
+            data: {
+                postId: params.postId,
+                userId: payload.userId,
+                action: 'PUBLISHED',
+                details: publishedUrl ? `Published to ${publishedUrl}` : 'Marked as published',
+            }
         });
 
         return NextResponse.json({

@@ -64,41 +64,38 @@ export async function POST(
             return NextResponse.json({ success: false, error: 'Invalid status' }, { status: 400 });
         }
 
-        // Atomic transaction: update post status + add history + create review
-        const result = await prisma.$transaction(async (tx: any) => {
-            const oldStatus = post.status;
+        // Note: Removed transaction for HTTP adapter compatibility on Vercel
+        const oldStatus = post.status;
 
-            const updatedPost = await tx.post.update({
-                where: { id: postId },
-                data: { status: newStatus },
-            });
+        const updatedPost = await prisma.post.update({
+            where: { id: postId },
+            data: { status: newStatus },
+        });
 
-            const history = await tx.postStatusHistory.create({
+        const history = await prisma.postStatusHistory.create({
+            data: {
+                postId,
+                oldStatus,
+                newStatus,
+                byUserId: payload.userId,
+                comment: comment || null,
+            },
+        });
+
+        let review = null;
+        // Also add for reviews if it's an approval/rejection/changes logic
+        if (['APPROVED', 'CHANGES_REQUESTED', 'REJECTED'].includes(newStatus)) {
+            review = await prisma.postReview.create({
                 data: {
                     postId,
-                    oldStatus,
-                    newStatus,
-                    byUserId: payload.userId,
-                    comment: comment || null,
-                },
+                    status: newStatus,
+                    reviewerId: payload.userId,
+                    comment: comment || (newStatus === 'APPROVED' ? 'Approved by Editor' : 'Feedback provided'),
+                }
             });
+        }
 
-            let review = null;
-            // Also add for reviews if it's an approval/rejection/changes logic
-            if (['APPROVED', 'CHANGES_REQUESTED', 'REJECTED'].includes(newStatus)) {
-                review = await tx.postReview.create({
-                    data: {
-                        postId,
-                        status: newStatus,
-                        reviewerId: payload.userId,
-                        comment: comment || (newStatus === 'APPROVED' ? 'Approved by Editor' : 'Feedback provided'),
-                    }
-                });
-            }
-
-            // Return the review if created, otherwise return what we have (though frontend expects review)
-            return review || { status: newStatus, ...history };
-        });
+        const result = review || { status: newStatus, ...history };
 
         return NextResponse.json({
             success: true,

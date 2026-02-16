@@ -1,25 +1,17 @@
 import { PrismaClient } from '@prisma/client'
-import { Pool, neonConfig } from '@neondatabase/serverless'
-import { PrismaNeon } from '@prisma/adapter-neon'
-import ws from 'ws'
+import { neon } from '@neondatabase/serverless'
+import { PrismaNeonHttp } from '@prisma/adapter-neon'
 import dotenv from 'dotenv'
 
-// CRITICAL: Disable problematic native modules in 'ws' for Vercel compatibility
+// Load environment variables for local development and non-Next.js scripts
 if (typeof window === 'undefined') {
-    process.env.WS_NO_BUFFER_UTIL = '1'
-    process.env.WS_NO_UTF_8_VALIDATE = '1'
     dotenv.config()
-}
-
-// CRITICAL: Configure Neon to use the 'ws' package for WebSockets
-if (typeof window === 'undefined') {
-    neonConfig.webSocketConstructor = ws
 }
 
 /**
  * Standard Prisma Client initialization for Prisma 7 with Neon HTTP Adapter.
+ * HTTP Adapter is more stable on Vercel than WebSockets.
  */
-
 const prismaClientSingleton = () => {
     // CRITICAL: During Vercel build (static generation), DATABASE_URL is often missing.
     if (!process.env.DATABASE_URL) {
@@ -43,18 +35,15 @@ const prismaClientSingleton = () => {
     }
 
     try {
-        console.log("LOG: Constructing PrismaClient with PrismaNeon (WebSocket) adapter...");
+        console.log("LOG: Constructing PrismaClient with PrismaNeonHttp adapter...");
 
-        const url = process.env.DATABASE_URL;
-        if (!url) throw new Error("DATABASE_URL is missing in environment");
-
-        // Prisma 7 Neon Driver Adapter setup (WebSocket version)
-        const adapter = new PrismaNeon({ connectionString: url });
+        const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!, {} as any);
 
         const client = new PrismaClient({
             adapter: adapter as any,
             log: ['query', 'info', 'warn', 'error']
         });
+
         console.log("LOG: PrismaClient successfully constructed");
         return client;
     } catch (e: any) {

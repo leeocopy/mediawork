@@ -146,29 +146,27 @@ export const addPostReview = async (reviewData: {
     reviewerId: string;
     comment?: string;
 }) => {
-    // Start a transaction to update the review and the post status
-    return prisma.$transaction(async (tx: any) => {
-        const review = await (tx as any).postReview.create({
-            data: reviewData,
-        });
-
-        await (tx as any).post.update({
-            where: { id: reviewData.postId },
-            data: { status: reviewData.status },
-        });
-
-        // Log activity
-        await (tx as any).postActivity.create({
-            data: {
-                postId: reviewData.postId,
-                userId: reviewData.reviewerId,
-                action: 'REVIEWED',
-                details: `Status set to ${reviewData.status}${reviewData.comment ? `: ${reviewData.comment}` : ''}`,
-            }
-        });
-
-        return review;
+    // Note: Removed transaction for HTTP adapter compatibility on Vercel
+    const review = await (prisma as any).postReview.create({
+        data: reviewData,
     });
+
+    await (prisma as any).post.update({
+        where: { id: reviewData.postId },
+        data: { status: reviewData.status },
+    });
+
+    // Log activity
+    await (prisma as any).postActivity.create({
+        data: {
+            postId: reviewData.postId,
+            userId: reviewData.reviewerId,
+            action: 'REVIEWED',
+            details: `Status set to ${reviewData.status}${reviewData.comment ? `: ${reviewData.comment}` : ''}`,
+        }
+    });
+
+    return review;
 };
 
 // Get latest post review
