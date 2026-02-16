@@ -59,9 +59,12 @@ export async function POST(
         }
 
         // 4. Generate Content
+        // 4. Generate Content
+        console.log('LOG: Generating AI Content...');
         const aiContent = await generateAIContent(post, brandProfile);
 
         // 5. Save/Update Output
+        console.log('LOG: Saving AI Output...', postId);
         const savedOutput = await saveAIOutput(postId, aiContent);
 
         return NextResponse.json({
