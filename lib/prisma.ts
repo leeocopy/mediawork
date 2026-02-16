@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { neon } from '@neondatabase/serverless'
+// import { neon } from '@neondatabase/serverless' // Unused with PrismaNeonHttp
 import { PrismaNeonHttp } from '@prisma/adapter-neon'
 import dotenv from 'dotenv'
 
@@ -37,11 +37,14 @@ const prismaClientSingleton = () => {
     try {
         console.log("LOG: Constructing PrismaClient with PrismaNeonHttp adapter...");
 
-        const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!, {} as any);
+        // Prisma 7 Neon Driver Adapter setup (HTTP version)
+        // Note: PrismaNeonHttp expects a connection string and query options.
+        // We pass an empty object for options.
+        const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!, {});
 
         const client = new PrismaClient({
             adapter: adapter as any,
-            log: ['query', 'info', 'warn', 'error']
+            log: ['warn', 'error'] // Reduced logging for production
         });
 
         console.log("LOG: PrismaClient successfully constructed");
