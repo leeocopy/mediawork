@@ -124,25 +124,34 @@ export const generateAIContent = async (
 };
 
 export const saveAIOutput = async (postId: string, output: AIOutput) => {
-    return prisma.postAIOutput.upsert({
-        where: { postId },
-        update: {
-            internalBrief: JSON.stringify(output.internal_brief),
-            primaryCaption: output.primary_caption,
-            hashtags: JSON.stringify(output.hashtags),
-            imageIdeas: JSON.stringify(output.image_ideas),
-            visualSystem: output.visualSystem ? JSON.stringify(output.visualSystem) : null,
-            version: { increment: 1 }
-        },
-        create: {
-            postId,
-            internalBrief: JSON.stringify(output.internal_brief),
-            primaryCaption: output.primary_caption,
-            hashtags: JSON.stringify(output.hashtags),
-            imageIdeas: JSON.stringify(output.image_ideas),
-            visualSystem: output.visualSystem ? JSON.stringify(output.visualSystem) : null,
-        }
+    const existing = await prisma.postAIOutput.findUnique({
+        where: { postId }
     });
+
+    const data = {
+        internalBrief: JSON.stringify(output.internal_brief),
+        primaryCaption: output.primary_caption,
+        hashtags: JSON.stringify(output.hashtags),
+        imageIdeas: JSON.stringify(output.image_ideas),
+        visualSystem: output.visualSystem ? JSON.stringify(output.visualSystem) : null,
+    };
+
+    if (existing) {
+        return prisma.postAIOutput.update({
+            where: { postId },
+            data: {
+                ...data,
+                version: (existing as any).version + 1
+            }
+        });
+    } else {
+        return prisma.postAIOutput.create({
+            data: {
+                ...data,
+                postId,
+            }
+        });
+    }
 };
 
 

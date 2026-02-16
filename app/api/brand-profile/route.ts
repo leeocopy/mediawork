@@ -79,50 +79,53 @@ export async function PATCH(request: NextRequest) {
 
         const body = await request.json();
 
-        const updated = await prisma.brandProfile.upsert({
-            where: { companyId },
-            update: {
-                industry: body.industry,
-                targetAudience: body.targetAudience,
-                tone: body.tone,
-                language: body.language,
-                products: body.products,
-                uvp: body.uvp,
-                primaryColor: body.primaryColor,
-                secondaryColor: body.secondaryColor,
-                accentColor: body.accentColor,
-                fontFamily: body.fontFamily,
-                fontStyle: body.fontStyle,
-                tagline: body.tagline,
-                companyDescription: body.companyDescription,
-                websiteUrl: body.websiteUrl,
-                instagramHandle: body.instagramHandle,
-                doUseWords: body.doUseWords,
-                dontUseWords: body.dontUseWords,
-                emojiUsage: body.emojiUsage,
-            },
-            create: {
-                companyId,
-                industry: body.industry || '',
-                targetAudience: body.targetAudience || '',
-                tone: body.tone || 'Professional',
-                language: body.language || 'EN',
-                products: body.products || '',
-                uvp: body.uvp || '',
-                primaryColor: body.primaryColor || '#4F46E5',
-                secondaryColor: body.secondaryColor,
-                accentColor: body.accentColor,
-                fontFamily: body.fontFamily,
-                fontStyle: body.fontStyle,
-                tagline: body.tagline,
-                companyDescription: body.companyDescription,
-                websiteUrl: body.websiteUrl,
-                instagramHandle: body.instagramHandle,
-                doUseWords: body.doUseWords,
-                dontUseWords: body.dontUseWords,
-                emojiUsage: body.emojiUsage || 'light',
-            }
+        const existingGuideline = await prisma.brandProfile.findUnique({
+            where: { companyId }
         });
+
+        const data = {
+            industry: body.industry,
+            targetAudience: body.targetAudience,
+            tone: body.tone,
+            language: body.language,
+            products: body.products,
+            uvp: body.uvp,
+            primaryColor: body.primaryColor,
+            secondaryColor: body.secondaryColor,
+            accentColor: body.accentColor,
+            fontFamily: body.fontFamily,
+            fontStyle: body.fontStyle,
+            tagline: body.tagline,
+            companyDescription: body.companyDescription,
+            websiteUrl: body.websiteUrl,
+            instagramHandle: body.instagramHandle,
+            doUseWords: body.doUseWords,
+            dontUseWords: body.dontUseWords,
+            emojiUsage: body.emojiUsage,
+        };
+
+        let updated;
+        if (existingGuideline) {
+            updated = await prisma.brandProfile.update({
+                where: { companyId },
+                data: data,
+            });
+        } else {
+            updated = await prisma.brandProfile.create({
+                data: {
+                    ...data,
+                    companyId,
+                    industry: data.industry || '',
+                    targetAudience: data.targetAudience || '',
+                    tone: data.tone || 'Professional',
+                    language: data.language || 'EN',
+                    products: data.products || '',
+                    uvp: data.uvp || '',
+                    primaryColor: data.primaryColor || '#4F46E5',
+                    emojiUsage: data.emojiUsage || 'light',
+                }
+            });
+        }
 
         return NextResponse.json({ success: true, data: updated });
     } catch (error: any) {

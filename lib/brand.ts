@@ -36,12 +36,21 @@ export const updateBrandProfile = async (companyId: string, data: any) => {
     // Sanitizing data to only include schema fields
     const { id, companyId: cid, createdAt, updatedAt, ...rest } = data;
 
-    return prisma.brandProfile.upsert({
-        where: { companyId },
-        update: rest,
-        create: {
-            ...rest,
-            companyId,
-        },
+    const existing = await prisma.brandProfile.findUnique({
+        where: { companyId }
     });
+
+    if (existing) {
+        return prisma.brandProfile.update({
+            where: { companyId },
+            data: rest,
+        });
+    } else {
+        return prisma.brandProfile.create({
+            data: {
+                ...rest,
+                companyId,
+            },
+        });
+    }
 };

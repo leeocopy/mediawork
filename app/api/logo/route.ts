@@ -41,24 +41,33 @@ export async function POST(request: NextRequest) {
         // Save file
         const { url } = await saveFile(file, 'logos');
 
-        // Update brand profile
-        await prisma.brandProfile.upsert({
-            where: { companyId },
-            update: { logoUrl: url },
-            create: {
-                companyId,
-                industry: '',
-                targetAudience: '',
-                tone: '',
-                language: 'English (EN)',
-                products: '',
-                uvp: '',
-                primaryColor: '#4F46E5',
-                secondaryColor: '#FFFFFF',
-                accentColor: '#111827',
-                logoUrl: url
-            }
+        // Update brand profile (removed upsert for HTTP adapter compatibility)
+        const existingProfile = await prisma.brandProfile.findUnique({
+            where: { companyId }
         });
+
+        if (existingProfile) {
+            await prisma.brandProfile.update({
+                where: { companyId },
+                data: { logoUrl: url }
+            });
+        } else {
+            await prisma.brandProfile.create({
+                data: {
+                    companyId,
+                    industry: '',
+                    targetAudience: '',
+                    tone: '',
+                    language: 'English (EN)',
+                    products: '',
+                    uvp: '',
+                    primaryColor: '#4F46E5',
+                    secondaryColor: '#FFFFFF',
+                    accentColor: '#111827',
+                    logoUrl: url
+                }
+            });
+        }
 
         return NextResponse.json({ success: true, url });
     } catch (error: any) {
