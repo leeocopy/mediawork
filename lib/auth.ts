@@ -8,6 +8,12 @@ if (typeof window === 'undefined') {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production-min-256-bits';
 
+if (typeof window === 'undefined') {
+    if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+        console.warn('CRITICAL: JWT_SECRET is not set in production. Using fallback secret!');
+    }
+}
+
 export interface JWTPayload {
     userId: string;
     email: string;

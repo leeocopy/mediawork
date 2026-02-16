@@ -4,8 +4,10 @@ import { PrismaNeon } from '@prisma/adapter-neon'
 import ws from 'ws'
 import dotenv from 'dotenv'
 
-// Load environment variables for local development and non-Next.js scripts
+// CRITICAL: Disable problematic native modules in 'ws' for Vercel compatibility
 if (typeof window === 'undefined') {
+    process.env.WS_NO_BUFFER_UTIL = '1'
+    process.env.WS_NO_UTF_8_VALIDATE = '1'
     dotenv.config()
 }
 
